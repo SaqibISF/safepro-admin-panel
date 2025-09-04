@@ -11,7 +11,6 @@ import {
   IconFileWord,
   IconFolder,
   IconHelp,
-  IconInnerShadowTop,
   IconListDetails,
   IconReport,
   IconSearch,
@@ -32,6 +31,8 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import AppLogo from "./AppLogo";
+import Link from "next/link";
 
 const user = {
   name: "M Saqib Ali",
@@ -161,10 +162,9 @@ const AppSidebar: FC<ComponentProps<typeof Sidebar>> = ({ ...props }) => {
               asChild
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
-              <a href="#">
-                <IconInnerShadowTop className="!size-5" />
-                <span className="text-base font-semibold">Saqib Inc.</span>
-              </a>
+              <Link href="/">
+                <AppLogo />
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

@@ -17,9 +17,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Admin Panel", template: "%s | Admin Panel" },
+  title: { default: "Safe Pro Admin Panel", template: "%s | Safe Pro Admin Panel" },
   description:
-    "Admin Panel for VPNs. Manage users, content, and settings efficiently.",
+    "Safe Pro Admin Panel. Manage users, content, and settings efficiently.",
+  icons: "/logo.svg",
 };
 
 export default function RootLayout({
