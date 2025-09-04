@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import Avatar from "./Avatar";
+import ThemeSwitcher from "./ThemeSwitcher";
 
 const user = {
   name: "M Saqib Ali",
@@ -18,8 +19,9 @@ const Header: FC = () => {
           orientation="vertical"
           className="mx-2 data-[orientation=vertical]:h-4"
         />
-        <h1 className="text-base font-medium">Documents</h1>
+        <h1 className="text-base font-medium">Admin Panel</h1>
         <div className="ml-auto flex items-center gap-2">
+          <ThemeSwitcher />
           <Avatar user={user} />
         </div>
       </div>
