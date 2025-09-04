@@ -17,9 +17,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: { default: "Safe Pro Admin Panel", template: "%s | Safe Pro Admin Panel" },
+  title: {
+    default: "SafePro Admin Panel",
+    template: "%s | SafePro Admin Panel",
+  },
   description:
-    "Safe Pro Admin Panel. Manage users, content, and settings efficiently.",
+    "SafePro Admin Panel. Manage users, content, and settings efficiently.",
   icons: "/logo.svg",
 };
 
