@@ -1,0 +1,3 @@
+export const ACCESS_TOKEN_COOKIE_KEY = process.env.ACCESS_TOKEN_COOKIE_KEY!;
+export const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET!;
+export const ACCESS_TOKEN_EXPIRY = process.env.ACCESS_TOKEN_EXPIRY!;
