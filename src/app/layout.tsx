@@ -5,6 +5,14 @@ import Providers from "./providers";
 import AppSidebar from "@/components/AppSidebar";
 import Header from "@/components/Header";
 import { SidebarInset } from "@/components/ui/sidebar";
+import { headers } from "next/headers";
+import { Toaster } from "@/components/ui/sonner";
+import {
+  IconAlertCircleFilled,
+  IconAlertTriangleFilled,
+  IconCircleCheckFilled,
+  IconInfoCircleFilled,
+} from "@tabler/icons-react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -26,11 +34,13 @@ export const metadata: Metadata = {
   icons: "/logo.svg",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const pathname = headersList.get("x-pathname");
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -44,11 +54,31 @@ export default function RootLayout({
             storageKey: "admin-panel-theme",
           }}
         >
-          <AppSidebar variant="inset" />
-          <SidebarInset>
-            <Header />
-            {children}
-          </SidebarInset>
+          {pathname === "/login" ? (
+            children
+          ) : (
+            <>
+              <AppSidebar variant="inset" />
+              <SidebarInset>
+                <Header />
+                {children}
+              </SidebarInset>
+            </>
+          )}
+          <Toaster
+            icons={{
+              success: (
+                <IconCircleCheckFilled className="text-green-500 size-5" />
+              ),
+              error: (
+                <IconAlertCircleFilled className="text-destructive size-5" />
+              ),
+              warning: (
+                <IconAlertTriangleFilled className="text-yellow-500 size-5" />
+              ),
+              info: <IconInfoCircleFilled className="text-cyan-500 size-5" />,
+            }}
+          />
         </Providers>
       </body>
     </html>

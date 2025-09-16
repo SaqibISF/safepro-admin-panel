@@ -39,11 +39,12 @@ export const POST = apiHandler(async (req) => {
     );
   }
 
-  const finalUser = await loginPrisma.user.update({
-    where: { email },
-    data: { lastLoginAt: new Date() },
-    omit: { password: true },
-  });
+  if (user.role !== "admin") {
+    return Response.json(
+      { success: false, message: "Request Forbidden" },
+      { status: 403 }
+    );
+  }
 
   const accessToken = jwt.sign(
     { id: user.id, email: user.email, role: user.role },
@@ -66,7 +67,16 @@ export const POST = apiHandler(async (req) => {
     {
       success: true,
       message: "You are logged in successful",
-      user: finalUser,
+      user: {
+        id: user.id,
+        name: user.name,
+        slug: user.slug,
+        email: user.email,
+        emailVerifiedAt: user.emailVerifiedAt,
+        role: user.role === "admin" ? user.role : undefined,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+      },
       accessToken,
     },
     { status: 200 }

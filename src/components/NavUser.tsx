@@ -1,3 +1,5 @@
+"use client";
+
 import React, { FC } from "react";
 import { IconDotsVertical } from "@tabler/icons-react";
 

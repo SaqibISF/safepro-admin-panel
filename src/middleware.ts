@@ -8,9 +8,6 @@ export const middleware = async (req: NextRequest) => {
     return NextResponse.next();
   }
 
-  const headers = new Headers(req.headers);
-  headers.set("x-pathname", pathname);
-
   const accessToken = req.cookies.get(ACCESS_TOKEN_COOKIE_KEY);
 
   if (pathname === "/login" && accessToken) {
@@ -33,6 +30,6 @@ export const config: MiddlewareConfig = {
      * - static files (/_next/, /favicon.ico, etc.)
      * - public APIs (/api/public)
      */
-    "/((?!_next/static|_next/image|favicon.ico|api).*)",
+    "/((?!_next/static|_next/image|favicon.ico|api|logo.svg).*)",
   ],
 };

@@ -1,10 +1,14 @@
 import { apiHandler } from "@/helpers/apiHandlers";
 import prisma, { signupPrisma } from "@/lib/prisma";
 import { signupSchema } from "@/schemas/signupSchema";
+import bcrypt from "bcryptjs";
+import { PASSWORD_ROUNDED_SALT } from "@/lib/constants";
 
 export const POST = apiHandler(async (req) => {
   const body = await req.json();
-  const { name, email, password } = signupSchema.parse(body);
+  const { name, email, password: passwd } = signupSchema.parse(body);
+
+  const password = await bcrypt.hash(passwd, PASSWORD_ROUNDED_SALT);
 
   const existedUser = await prisma.user.findUnique({
     where: { email },

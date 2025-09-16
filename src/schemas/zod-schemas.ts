@@ -1,10 +1,12 @@
 import z from "zod";
 
-export const emailSchema = z.preprocess(
+export const emailSchema = z.preprocess<string, z.ZodEmail, string>(
   (val) => (typeof val === "string" ? val.trim() : val),
   z.email({
     error: (issue) =>
-      issue.input == null ? "Email is required" : "Invalid email format",
+      issue.input == null || issue.input === ""
+        ? "Email is required"
+        : "Invalid email format",
   })
 );
 

@@ -1,4 +1,3 @@
-import bcrypt from "bcryptjs";
 import z from "zod";
 
 const commonPasswords: string[] = [];
@@ -28,22 +27,15 @@ const choosePasswordSchema = z
   })
   .refine((val) => !commonPasswords.includes(val.toLowerCase()), {
     message: "Password is too common. Choose something more secure.",
+  });
+
+const passwordSchema = z
+  .string({
+    error: (issue) =>
+      issue.input == null
+        ? "Password is required"
+        : "Password must be a string",
   })
-  .transform((val) => bcrypt.hashSync(val, 14));
+  .min(1, "Password is required");
 
-const passwordSchema = z.string({
-  error: (issue) =>
-    issue.input == null ? "Password is required" : "Password must be a string",
-});
-
-const isPasswordCorrect = ({
-  password,
-  hash,
-}: {
-  password: string;
-  hash: string;
-}) => {
-  return bcrypt.compareSync(password, hash);
-};
-
-export { choosePasswordSchema, passwordSchema, isPasswordCorrect };
+export { choosePasswordSchema, passwordSchema };
