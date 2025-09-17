@@ -3,3 +3,9 @@ declare type AuthenticatedRequest = {
   accessToken: string;
   accessTokenExpiry: Date;
 } & Request;
+
+declare type AdminAuthenticatedRequest = {
+  admin: { id: string; email: string };
+  accessToken: string;
+  accessTokenExpiry: Date;
+} & Request;

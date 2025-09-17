@@ -38,4 +38,46 @@ const passwordSchema = z
   })
   .min(1, "Password is required");
 
-export { choosePasswordSchema, passwordSchema };
+const confirmPasswordSchema = z
+  .string({
+    error: (issue) =>
+      issue.input == null
+        ? "Confirm password is required"
+        : "Confirm password must be a string",
+  })
+  .min(1, "Confirm password is required");
+
+const createPasswordSchema = z
+  .object({
+    password: choosePasswordSchema,
+    confirmPassword: confirmPasswordSchema,
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  })
+  .strict();
+
+const updatePasswordSchema = z
+  .object({
+    oldPassword: passwordSchema,
+    newPassword: choosePasswordSchema,
+    confirmPassword: confirmPasswordSchema,
+  })
+  .refine((data) => data.oldPassword !== data.newPassword, {
+    message: "Please choose different password",
+    path: ["newPassword"],
+  })
+  .refine((data) => data.newPassword === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  })
+  .strict();
+
+export {
+  choosePasswordSchema,
+  passwordSchema,
+  confirmPasswordSchema,
+  createPasswordSchema,
+  updatePasswordSchema,
+};
