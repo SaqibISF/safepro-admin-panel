@@ -18,12 +18,20 @@ export const POST = apiHandler(async (req) => {
 
   const user = await loginPrisma.user.findUnique({
     where: { email },
+    select: { role: true, password: true, emailVerifiedAt: true },
   });
 
   if (!user) {
     return Response.json(
       { success: false, message: "User not found" },
       { status: 404 }
+    );
+  }
+
+  if (user.role !== "admin") {
+    return Response.json(
+      { success: false, message: "Request Forbidden" },
+      { status: 403 }
     );
   }
 
@@ -39,15 +47,24 @@ export const POST = apiHandler(async (req) => {
     );
   }
 
-  if (user.role !== "admin") {
+  if (!user.emailVerifiedAt) {
     return Response.json(
-      { success: false, message: "Request Forbidden" },
+      {
+        success: false,
+        message: "Please verify your email before logging in.",
+      },
       { status: 403 }
     );
   }
 
+  const finalUser = await loginPrisma.user.update({
+    where: { email },
+    data: { lastLoginAt: new Date() },
+    select: { id: true, name: true, slug: true, email: true, role: true },
+  });
+
   const accessToken = jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
+    { id: finalUser.id, email: finalUser.email, role: finalUser.role },
     ACCESS_TOKEN_SECRET as Secret,
     {
       expiresIn: ACCESS_TOKEN_EXPIRY as StringValue,
@@ -67,16 +84,7 @@ export const POST = apiHandler(async (req) => {
     {
       success: true,
       message: "You are logged in successful",
-      user: {
-        id: user.id,
-        name: user.name,
-        slug: user.slug,
-        email: user.email,
-        emailVerifiedAt: user.emailVerifiedAt,
-        role: user.role === "admin" ? user.role : undefined,
-        createdAt: user.createdAt,
-        updatedAt: user.updatedAt,
-      },
+      user: finalUser,
       accessToken,
     },
     { status: 200 }

@@ -4,10 +4,6 @@ import { ACCESS_TOKEN_COOKIE_KEY } from "./lib/constants";
 export const middleware = async (req: NextRequest) => {
   const { pathname } = req.nextUrl;
 
-  if (pathname.startsWith("/api")) {
-    return NextResponse.next();
-  }
-
   const accessToken = req.cookies.get(ACCESS_TOKEN_COOKIE_KEY);
 
   if (pathname === "/login" && accessToken) {

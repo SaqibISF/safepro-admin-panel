@@ -72,7 +72,7 @@ export const apiAuthenticatedHandler =
       }
 
       const authReq = Object.assign(req, {
-        user: { id: payload.id, email: payload.email, role: payload.role },
+        user: { id: payload.id, email: payload.email },
         accessToken,
         accessTokenExpiry: new Date(payload.exp! * 1000),
       }) as AuthenticatedRequest;

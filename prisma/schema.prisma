@@ -14,13 +14,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Users {
-  id       String @id @default(nanoid())
-  name     String
-  email    String @unique
-  password String
-}
-
 model User {
   id              String    @id @default(nanoid())
   name            String
@@ -46,4 +39,31 @@ model Token {
   accessToken String   @unique
   expiryDate  DateTime
   createdAt   DateTime @default(now())
+}
+
+model VPSServer {
+  id         String  @id @default(nanoid())
+  name       String?
+  username   String
+  ipAddress  String  @unique
+  privateKey String?
+  password   String?
+  port       Int     @default(22)
+  domain     String?
+  status     Boolean @default(false)
+
+  bandwidth               BigInt?
+  ramLimit                BigInt?
+  cpuLimit                BigInt?
+  diskLimit               BigInt?
+  bandWidthLimitPerSecond BigInt?
+
+  healthScore        Float?
+  cpuUsage           Float?
+  ramUsage           Float?
+  diskUsage          Float?
+  totalMBitPerSecond Float?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

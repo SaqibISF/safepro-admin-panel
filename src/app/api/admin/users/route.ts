@@ -23,7 +23,33 @@ export const GET = apiAdminAuthenticatedHandler(async (req) => {
       : undefined,
   };
 
-  const totalUsers = await prisma.user.count({ where });
+  const totalUsers = await prisma.user.count();
+
+  const activeUsers = await prisma.user.count({
+    where: { OR: [{ bannedAt: null }, { bannedAt: undefined }] },
+  });
+
+  const bannedUsers = await prisma.user.count({
+    where: {
+      OR: [{ NOT: { bannedAt: null } }, { NOT: { bannedAt: undefined } }],
+    },
+  });
+
+  const startOfToday = new Date();
+  startOfToday.setHours(0, 0, 0, 0);
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+
+  const todayUsers = await prisma.user.count({
+    where: {
+      createdAt: {
+        gte: startOfToday,
+        lte: endOfToday,
+      },
+    },
+  });
+
+  const total = await prisma.user.count({ where });
 
   const users = await prisma.user.findMany({
     where,
@@ -38,11 +64,12 @@ export const GET = apiAdminAuthenticatedHandler(async (req) => {
       message: "Users fetched successfully",
       users,
       pagination: {
-        total: totalUsers,
+        total,
         page,
         limit,
-        totalPages: Math.ceil(totalUsers / limit),
+        totalPages: Math.ceil(total / limit),
       },
+      meta: { totalUsers, activeUsers, bannedUsers, todayUsers },
     },
     { status: 200 }
   );

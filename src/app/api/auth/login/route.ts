@@ -18,6 +18,7 @@ export const POST = apiHandler(async (req) => {
 
   const user = await loginPrisma.user.findUnique({
     where: { email },
+    select: { password: true, emailVerifiedAt: true },
   });
 
   if (!user) {
@@ -39,14 +40,24 @@ export const POST = apiHandler(async (req) => {
     );
   }
 
+  if (!user.emailVerifiedAt) {
+    return Response.json(
+      {
+        success: false,
+        message: "Please verify your email before logging in.",
+      },
+      { status: 403 }
+    );
+  }
+
   const finalUser = await loginPrisma.user.update({
     where: { email },
     data: { lastLoginAt: new Date() },
-    omit: { password: true },
+    select: { id: true, name: true, slug: true, email: true },
   });
 
   const accessToken = jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
+    { id: finalUser.id, email: finalUser.email },
     ACCESS_TOKEN_SECRET as Secret,
     {
       expiresIn: ACCESS_TOKEN_EXPIRY as StringValue,
