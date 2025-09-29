@@ -1,8 +1,8 @@
-import { apiAdminAuthenticatedHandler } from "@/helpers/apiHandlers";
+import { apiHandlerWithAdminAuth } from "@/helpers/apiHandlers";
 import prisma from "@/lib/prisma";
 import { z } from "zod";
 
-export const GET = apiAdminAuthenticatedHandler(
+export const GET = apiHandlerWithAdminAuth(
   async (_req, { params }: { params: Promise<{ serverId: string }> }) => {
     const { serverId } = await params;
     const vpsServer = await prisma.vPSServer.findUnique({
@@ -15,7 +15,7 @@ export const GET = apiAdminAuthenticatedHandler(
   }
 );
 
-export const PATCH = apiAdminAuthenticatedHandler(
+export const PATCH = apiHandlerWithAdminAuth(
   async (req, { params }: { params: Promise<{ serverId: string }> }) => {
     const updateVPSServerSchema = z.object({
       name: z

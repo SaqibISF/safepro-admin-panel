@@ -20,7 +20,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { signinSchema } from "@/schemas/signinSchema";
 import { Loader } from "lucide-react";
 import axios, { AxiosError } from "axios";
-import { ADMIN_LOGIN_ROUTE } from "@/lib/routes";
+import { ADMIN_LOGIN_ROUTE } from "@/lib/admin-routes";
 import { useRouter } from "next/navigation";
 import { ErrorAlert } from "./elements/custom-alerts";
 

@@ -1,9 +1,9 @@
-import { apiAuthenticatedHandler } from "@/helpers/apiHandlers";
+import { apiHandlerWithAuth } from "@/helpers/apiHandlers";
 import { ACCESS_TOKEN_COOKIE_KEY } from "@/lib/constants";
 import { cookies as nextCookies } from "next/headers";
 import prisma from "@/lib/prisma";
 
-export const POST = apiAuthenticatedHandler(async (req) => {
+export const POST = apiHandlerWithAuth(async (req) => {
   const cookies = await nextCookies();
   cookies.delete(ACCESS_TOKEN_COOKIE_KEY);
 

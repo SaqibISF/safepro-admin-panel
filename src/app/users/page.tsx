@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import Section from "@/components/Section";
-import UsersTable from "@/components/UsersDataTable";
+import UsersTable from "@/components/UsersTable";
 
 const UsersPage: FC = async () => {
   return (

@@ -1,8 +1,8 @@
 import { Prisma } from "@/app/generated/prisma";
-import { apiAdminAuthenticatedHandler } from "@/helpers/apiHandlers";
+import { apiHandlerWithAdminAuth } from "@/helpers/apiHandlers";
 import prisma from "@/lib/prisma";
 
-export const GET = apiAdminAuthenticatedHandler(async (req) => {
+export const GET = apiHandlerWithAdminAuth(async (req) => {
   const { searchParams } = new URL(req.url);
   const page = parseInt(searchParams.get("page") ?? "1", 10);
   const limit = parseInt(searchParams.get("limit") ?? "10", 10);

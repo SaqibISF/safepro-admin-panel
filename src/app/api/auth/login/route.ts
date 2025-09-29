@@ -4,7 +4,7 @@ import {
   ACCESS_TOKEN_EXPIRY,
   ACCESS_TOKEN_SECRET,
 } from "@/lib/constants";
-import { loginPrisma } from "@/lib/prisma";
+import prisma, { loginPrisma } from "@/lib/prisma";
 import { isPasswordCorrect } from "@/helpers/isPasswordCorrect";
 import { signinSchema } from "@/schemas/signinSchema";
 import jwt, { Secret } from "jsonwebtoken";
@@ -18,7 +18,7 @@ export const POST = apiHandler(async (req) => {
 
   const user = await loginPrisma.user.findUnique({
     where: { email },
-    select: { password: true, emailVerifiedAt: true },
+    select: { password: true, emailVerifiedAt: true, deletedAt: true },
   });
 
   if (!user) {
@@ -38,6 +38,34 @@ export const POST = apiHandler(async (req) => {
       { success: false, message: "Invalid Credentials" },
       { status: 401 }
     );
+  }
+
+  if (user.deletedAt) {
+    const now = new Date();
+    const diffMs = now.getTime() - user.deletedAt.getTime();
+    const diffDays = diffMs / (1000 * 60 * 60 * 24);
+    if (diffDays > 3) {
+      return Response.json(
+        {
+          success: false,
+          message: "User was deleted, for restore contact to admin support",
+        },
+        { status: 410 }
+      );
+    } else {
+      await prisma.user.update({ where: { email }, data: { deletedAt: null } });
+
+      if (!user.emailVerifiedAt) {
+        return Response.json(
+          {
+            success: false,
+            message:
+              "Your account was restored. Please verify your email to login.",
+          },
+          { status: 403 }
+        );
+      }
+    }
   }
 
   if (!user.emailVerifiedAt) {

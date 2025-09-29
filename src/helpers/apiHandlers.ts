@@ -23,9 +23,9 @@ export const apiHandler =
     }
   };
 
-export const apiAuthenticatedHandler =
+export const apiHandlerWithAuth =
   <T extends unknown[]>(
-    handler: (req: AuthenticatedRequest, ...args: T) => Promise<Response>
+    handler: (req: AuthRequest, ...args: T) => Promise<Response>
   ) =>
   async (req: Request, ...args: T) => {
     try {
@@ -75,7 +75,7 @@ export const apiAuthenticatedHandler =
         user: { id: payload.id, email: payload.email },
         accessToken,
         accessTokenExpiry: new Date(payload.exp! * 1000),
-      }) as AuthenticatedRequest;
+      });
 
       return await handler(authReq, ...args);
     } catch (error) {
@@ -89,9 +89,9 @@ export const apiAuthenticatedHandler =
     }
   };
 
-export const apiAdminAuthenticatedHandler =
+export const apiHandlerWithAdminAuth =
   <T extends unknown[]>(
-    handler: (req: AdminAuthenticatedRequest, ...args: T) => Promise<Response>
+    handler: (req: AuthRequest, ...args: T) => Promise<Response>
   ) =>
   async (req: Request, ...args: T) => {
     try {
@@ -139,10 +139,10 @@ export const apiAdminAuthenticatedHandler =
       }
 
       const authReq = Object.assign(req, {
-        admin: { id: payload.id, email: payload.email },
+        user: { id: payload.id, email: payload.email },
         accessToken,
         accessTokenExpiry: new Date(payload.exp! * 1000),
-      }) as AdminAuthenticatedRequest;
+      });
 
       return await handler(authReq, ...args);
     } catch (error) {

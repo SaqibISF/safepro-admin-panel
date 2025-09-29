@@ -1,12 +1,21 @@
-import { apiAdminAuthenticatedHandler } from "@/helpers/apiHandlers";
+import { apiHandlerWithAdminAuth } from "@/helpers/apiHandlers";
 import prisma from "@/lib/prisma";
-import { z } from "zod";
-import { nameSchema } from "@/schemas/zod-schemas";
+import { updateUserSchema } from "@/schemas/update-user-schema";
+import z from "zod";
 
-export const GET = apiAdminAuthenticatedHandler(
+export const GET = apiHandlerWithAdminAuth(
   async (_req, { params }: { params: Promise<{ userId: string }> }) => {
     const { userId } = await params;
+
     const user = await prisma.user.findUnique({ where: { id: userId } });
+
+    if (!user) {
+      return Response.json(
+        { success: false, message: "User not found" },
+        { status: 404 }
+      );
+    }
+
     return Response.json(
       { success: true, message: "User fetched successfully", user },
       { status: 200 }
@@ -14,88 +23,59 @@ export const GET = apiAdminAuthenticatedHandler(
   }
 );
 
-export const PATCH = apiAdminAuthenticatedHandler(
+export const PATCH = apiHandlerWithAdminAuth(
   async (req, { params }: { params: Promise<{ userId: string }> }) => {
-    const updateUserSchema = z
-      .object({
-        name: nameSchema.optional(),
-        role: z
-          .literal(["user", "admin"], {
-            error: "role expected only user or admin",
-          })
-          .optional(),
-
-        emailVerified: z
-          .literal(true, { error: "emailVerified expected true" })
-          .optional(),
-
-        banned: z.boolean({ error: "banned expected boolean" }).optional(),
-
-        banReason: z
-          .string({ error: "banReason expected string" })
-          .trim()
-          .min(1, "Banned reason is required")
-          .nullable()
-          .optional(),
-
-        paddleId: z
-          .string({ error: "paddleId expected string" })
-          .nullable()
-          .optional(),
-        googleId: z
-          .string({ error: "googleId expected string" })
-          .nullable()
-          .optional(),
-        appleId: z
-          .string({ error: "appleId expected string" })
-          .nullable()
-          .optional(),
-      })
-      .strict()
-      .transform(
-        async (
-          incomingData
-        ): Promise<
-          Omit<typeof incomingData, "emailVerified" | "banned"> & {
-            emailVerifiedAt?: Date;
-            bannedAt?: Date | null;
-          }
-        > => {
-          const data: typeof incomingData & {
-            emailVerifiedAt?: Date;
-            bannedAt?: Date | null;
-          } = { ...incomingData };
-
-          if (data.emailVerified) {
-            delete data.emailVerified;
-            const user = await prisma.user.findUnique({
-              where: { id: userId },
-            });
-            if (user && !user.emailVerifiedAt) {
-              data.emailVerifiedAt = new Date();
-            }
-          }
-
-          if (typeof data.banned === "boolean") {
-            if (data.banned) {
-              data.bannedAt = new Date();
-            } else {
-              data.bannedAt = null;
-              data.banReason = null;
-            }
-            delete data.banned;
-          } else if (typeof data.banReason === "string") {
-            data.banReason = undefined;
-          }
-
-          return data;
-        }
-      );
-
     const { userId } = await params;
     const body = await req.json();
 
-    const data = await updateUserSchema.parseAsync(body);
+    const data: z.infer<typeof updateUserSchema> & {
+      emailVerifiedAt?: Date;
+      bannedAt?: Date | null;
+      deletedAt?: Date | null;
+    } = updateUserSchema.parse(body);
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { slug: true, emailVerifiedAt: true, deletedAt: true },
+    });
+
+    if (!user) {
+      return Response.json(
+        { success: false, message: "User not found" },
+        { status: 404 }
+      );
+    }
+
+    if (data.emailVerified) {
+      delete data.emailVerified;
+
+      if (!user.emailVerifiedAt) {
+        data.emailVerifiedAt = new Date();
+      }
+    }
+
+    if (typeof data.banned === "boolean") {
+      if (data.banned) {
+        data.bannedAt = new Date();
+      } else {
+        data.bannedAt = null;
+        data.banReason = null;
+      }
+      delete data.banned;
+    } else if (typeof data.banReason === "string") {
+      data.banReason = undefined;
+    }
+
+    if (data.restore) {
+      if (!user.deletedAt) {
+        return Response.json(
+          { success: false, message: "This user was not deleted" },
+          { status: 409 }
+        );
+      }
+      delete data.restore;
+      data.deletedAt = null;
+    }
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
@@ -108,6 +88,40 @@ export const PATCH = apiAdminAuthenticatedHandler(
         message: "User updated successfully",
         user: updatedUser,
       },
+      { status: 200 }
+    );
+  }
+);
+
+export const DELETE = apiHandlerWithAdminAuth(
+  async (_req, { params }: { params: Promise<{ userId: string }> }) => {
+    const { userId } = await params;
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { deletedAt: true },
+    });
+
+    if (!user) {
+      return Response.json(
+        { success: false, message: "User not found" },
+        { status: 404 }
+      );
+    }
+
+    if (user.deletedAt) {
+      return Response.json(
+        { success: false, message: "This user already deleted" },
+        { status: 409 }
+      );
+    }
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: { deletedAt: new Date() },
+    });
+
+    return Response.json(
+      { success: true, message: "User deleted successfully" },
       { status: 200 }
     );
   }

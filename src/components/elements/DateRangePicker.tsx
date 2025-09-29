@@ -3,7 +3,7 @@
 import React, { FC, ReactNode, useId, useState } from "react";
 import { ChevronDownIcon } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { Button, type ButtonProps } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Label } from "@/components/ui/label";
 import {
@@ -15,12 +15,21 @@ import { DateRange } from "react-day-picker";
 import { LabelProps } from "@radix-ui/react-label";
 import { cn } from "@/lib/utils";
 
-const DateRangePicker: FC<{
-  label?: ReactNode;
-  labelProps?: LabelProps;
-  dateRange?: DateRange;
-  setDateRange?: (dateRange: DateRange | undefined) => void;
-}> = ({ label, labelProps, dateRange, setDateRange }) => {
+const DateRangePicker: FC<
+  ButtonProps & {
+    label?: ReactNode;
+    labelProps?: LabelProps;
+    dateRange?: DateRange;
+    setDateRange?: (dateRange: DateRange | undefined) => void;
+  }
+> = ({
+  label,
+  labelProps,
+  dateRange,
+  setDateRange,
+  variant = "outline",
+  ...props
+}) => {
   const id = useId();
   const [open, setOpen] = useState<boolean>(false);
 
@@ -37,14 +46,10 @@ const DateRangePicker: FC<{
       )}
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            id={id}
-            className="w-fit"
-          >
+          <Button id={id} variant={variant} {...props}>
             {dateRange
               ? `${dateRange.from?.toLocaleDateString()} - ${dateRange.to?.toLocaleDateString()}`
-              : "Select date"}
+              : "Select date range"}
             <ChevronDownIcon />
           </Button>
         </PopoverTrigger>
