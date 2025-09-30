@@ -49,7 +49,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "./ui/alert-dialog";
+} from "../ui/alert-dialog";
 import {
   Form,
   FormControl,
@@ -57,17 +57,17 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "./ui/form";
+} from "../ui/form";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { signupSchema } from "@/schemas/signupSchema";
-import { ErrorAlert } from "./elements/custom-alerts";
+import { ErrorAlert } from "../elements/custom-alerts";
 import axios, { AxiosError } from "axios";
 import { USERS_ROUTE } from "@/lib/admin-routes";
 import { nameSchema } from "@/schemas/zod-schemas";
 import { choosePasswordSchema } from "@/schemas/password-schema";
 import useSWR from "swr";
-import { Skeleton } from "./ui/skeleton";
+import { Skeleton } from "../ui/skeleton";
 import { toast } from "sonner";
 import {
   Card,
@@ -75,12 +75,12 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "./ui/card";
+} from "../ui/card";
 import { DateRange } from "react-day-picker";
-import DateRangePicker from "./elements/DateRangePicker";
+import DateRangePicker from "../elements/DateRangePicker";
 import { useUpdateUser } from "@/hooks/use-update-user";
 import { useDebounce } from "@/hooks/use-debounce";
-import DataTable from "./DataTable";
+import DataTable from "../DataTable";
 import { fetcher } from "@/lib/fetcher";
 
 type UserResponse = {
@@ -515,7 +515,7 @@ const RestoreUser: FC<{
   );
 };
 
-const UsersTable: FC = () => {
+const UsersSection: FC = () => {
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 5,
@@ -914,4 +914,4 @@ const UsersTable: FC = () => {
   );
 };
 
-export default UsersTable;
+export default UsersSection;

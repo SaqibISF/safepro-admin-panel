@@ -1,11 +1,11 @@
 import React, { FC } from "react";
 import Section from "@/components/Section";
-import UsersTable from "@/components/UsersTable";
+import UsersSection from "@/components/sections/UsersSection";
 
 const UsersPage: FC = async () => {
   return (
     <Section heading="Users">
-      <UsersTable />
+      <UsersSection />
     </Section>
   );
 };
