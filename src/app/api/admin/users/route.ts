@@ -53,11 +53,11 @@ export const GET = apiHandlerWithAdminAuth(async (req) => {
   const limit = parseInt(searchParams.get("limit") ?? "10", 10);
   const search = searchParams.get("search") ?? "";
 
-  const filters: Prisma.UserWhereInput[] | undefined = JSON.parse(
+  const filters: Prisma.UserWhereInput[] = JSON.parse(
     searchParams.get("filters") ?? "[]"
   );
 
-  if (filters) {
+  if (filters.length) {
     let hasOnlyDeletedUsersFilter = false;
     let hasWithDeletedUsersFilter = false;
 
@@ -81,7 +81,7 @@ export const GET = apiHandlerWithAdminAuth(async (req) => {
   const skip = (page - 1) * limit;
 
   const where: Prisma.UserWhereInput = {
-    AND: filters ? filters : { deletedAt: null },
+    AND: filters.length ? filters : { deletedAt: null },
     OR: search.trim()
       ? [
           { id: { contains: search, mode: "insensitive" } },
