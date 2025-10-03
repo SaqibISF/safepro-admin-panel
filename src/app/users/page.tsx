@@ -78,11 +78,11 @@ import {
 } from "@/components/ui/card";
 import { DateRange } from "react-day-picker";
 import DateRangePicker from "@/components/elements/DateRangePicker";
-import { useUpdateUser } from "@/hooks/use-update-user";
 import { useDebounce } from "@/hooks/use-debounce";
 import DataTable from "@/components/DataTable";
 import { fetcher } from "@/lib/fetcher";
 import Section from "@/components/Section";
+import { deleteUser, updateUser } from "@/lib/user-actions";
 
 type UserResponse = {
   success: boolean;
@@ -194,28 +194,31 @@ const CreateNewUser: FC<{ onSuccess?: (user: User) => void }> = ({
                   name: "name",
                   label: "Name",
                   type: "text",
-                  placeholder: "Enter you name",
+                  placeholder: "Enter your name",
+                  isRequired: true,
                 },
                 {
                   name: "email",
                   label: "Email Address",
                   type: "email",
-                  placeholder: "Enter you email address",
+                  placeholder: "Enter your email address",
+                  isRequired: true,
                 },
                 {
                   name: "password",
                   label: "Password",
                   type: "password",
-                  placeholder: "Enter you password",
+                  placeholder: "Enter your password",
+                  isRequired: true,
                 },
-              ].map(({ name, label, type, placeholder }) => (
+              ].map(({ name, label, type, placeholder, isRequired }) => (
                 <FormField
                   key={name}
                   control={control}
                   name={name as keyof z.infer<typeof signupSchema>}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{label}</FormLabel>
+                      <FormLabel>{`${label} ${isRequired ? "*" : ""}`}</FormLabel>
                       <FormControl>
                         <Input
                           type={type}
@@ -265,7 +268,6 @@ const UpdateUser: FC<{
   });
 
   const [open, onOpenChange] = useState<boolean>(false);
-  const { updateUser } = useUpdateUser(user.id);
   const form = useForm<z.infer<typeof schema>>({
     resolver: zodResolver(schema),
     defaultValues: { name: "", password: "", role: "user" },
@@ -282,6 +284,7 @@ const UpdateUser: FC<{
 
   const update: SubmitHandler<z.infer<typeof schema>> = async (values) => {
     updateUser({
+      userId: user.id,
       values,
       onSuccess: (user, message) => {
         reset();
@@ -416,7 +419,18 @@ const DeleteUser: FC<{
   userId: string;
   onSuccess?: () => void;
 }> = ({ userId, onSuccess }) => {
-  const { isLoading: isDeleting, deleteUser } = useUpdateUser(userId);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+
+  const handleDelete = async () => {
+    setIsDeleting(true);
+    await deleteUser({
+      userId,
+      onSuccess: () => {
+        setIsDeleting(false);
+        if (onSuccess) onSuccess();
+      },
+    });
+  };
 
   return (
     <AlertDialog>
@@ -447,13 +461,7 @@ const DeleteUser: FC<{
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={() =>
-              deleteUser({
-                onSuccess: () => {
-                  if (onSuccess) onSuccess();
-                },
-              })
-            }
+            onClick={handleDelete}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             Delete
@@ -468,11 +476,15 @@ const RestoreUser: FC<{
   userId: string;
   onSuccess?: (user: User) => void;
 }> = ({ userId, onSuccess }) => {
-  const { isLoading: isRestoring, updateUser } = useUpdateUser(userId);
-  const restore = () => {
-    updateUser({
+  const [isRestoring, setIsRestoring] = useState<boolean>(false);
+
+  const handleRestore = async () => {
+    setIsRestoring(false);
+    await updateUser({
+      userId,
       values: { restore: true },
       onSuccess: (user) => {
+        setIsRestoring(true);
         if (onSuccess) onSuccess(user);
       },
     });
@@ -505,7 +517,7 @@ const RestoreUser: FC<{
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            onClick={restore}
+            onClick={handleRestore}
             className="text-white bg-indigo-700 hover:bg-indigo-700/90 active:bg-indigo-700/80"
           >
             Restore

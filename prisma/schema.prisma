@@ -50,7 +50,7 @@ model VPSServer {
   password   String?
   port       Int     @default(22)
   domain     String?
-  status     Boolean @default(false)
+  status     Boolean @default(true)
 
   bandwidth               BigInt?
   ramLimit                BigInt?
@@ -66,4 +66,27 @@ model VPSServer {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  groups VPSGroupServer[]
+}
+
+model VPSGroup {
+  id          String   @id @default(nanoid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  servers VPSGroupServer[]
+}
+
+model VPSGroupServer {
+  vpsGroupId  String
+  vpsServerId String
+  role        String?
+
+  vpsGroup  VPSGroup  @relation(fields: [vpsGroupId], references: [id], onDelete: Cascade)
+  vpsServer VPSServer @relation(fields: [vpsServerId], references: [id], onDelete: Cascade)
+
+  @@id([vpsGroupId, vpsServerId])
 }

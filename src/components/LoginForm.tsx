@@ -95,22 +95,24 @@ const LoginForm: FC<HTMLAttributes<HTMLFormElement>> = ({
               name: "email",
               label: "Email Address",
               type: "email",
-              placeholder: "Enter you email address",
+              placeholder: "Enter your email address",
+              isRequired: true,
             },
             {
               name: "password",
               label: "Password",
               type: "password",
-              placeholder: "Enter you password",
+              placeholder: "Enter your password",
+              isRequired: true,
             },
-          ].map(({ name, label, type, placeholder }) => (
+          ].map(({ name, label, type, placeholder, isRequired }) => (
             <FormField
               key={name}
               control={control}
               name={name as keyof z.infer<typeof signinSchema>}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>{label}</FormLabel>
+                  <FormLabel>{`${label} ${isRequired ? "*" : ""}`}</FormLabel>
                   <FormControl>
                     <Input type={type} placeholder={placeholder} {...field} />
                   </FormControl>

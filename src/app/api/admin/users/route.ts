@@ -1,14 +1,13 @@
 import { Prisma } from "@/app/generated/prisma";
 import { apiHandlerWithAdminAuth } from "@/helpers/apiHandlers";
 import prisma, { signupPrisma } from "@/lib/prisma";
-import { apiHandler } from "@/helpers/apiHandlers";
 import bcrypt from "bcryptjs";
 import { PASSWORD_ROUNDED_SALT } from "@/lib/constants";
 import { emailSchema, nameSchema } from "@/schemas/zod-schemas";
 import { passwordSchema } from "@/schemas/password-schema";
 import z from "zod";
 
-export const POST = apiHandler(async (req) => {
+export const POST = apiHandlerWithAdminAuth(async (req) => {
   const body = await req.json();
   const createUserSchema = z
     .object({
